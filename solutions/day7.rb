@@ -53,18 +53,18 @@ class Program
     end
 
     def get_total_weight
-        weight = @weight + get_children_weight
+        weight = @weight + self.get_children_weight
         weight
     end
 
     def get_children_weight
-        weight = @weight        
+        weight = 0        
         if @children_weight.size > 0
             return @children_weight.inject(0) {|sum, x| sum + x }
         end
         children.each do |child|
-            child_weight = child.get_weight
-            @children_weight << child.get_weight
+            child_weight = child.get_total_weight
+            @children_weight << child_weight
             weight += child_weight
         end
         weight
@@ -72,7 +72,7 @@ class Program
 
     def is_children_weight_balanced?
         self.get_children_weight        
-        if @child_weight.size > 0
+        if @children_weight.size > 0
             w = @children_weight[0]
             @children_weight.each do |weight|
                 if w != weight
@@ -82,6 +82,29 @@ class Program
         end
         true
     end
+
+    def get_odd_child
+        if is_children_weight_balanced?
+            return nil
+        end    
+        @children_weight.each_with_index do |weight, idx|
+            if idx == @children_weight.size - 1
+                return @children[idx]
+            else
+                if idx == 0 && @children_weight[idx] != @children_weight[idx+1]
+                    if @children_weight[idx] == @children_weight[idx+2]
+                        return @children[idx+1]
+                    else
+                        return @children[idx]
+                    end
+                elsif idx != 0 && @children_weight[idx] != @children_weight[idx-1]
+                    return @children[idx]
+                end
+            end
+        end
+        nil
+    end
+
 end
 
 def get_programs
@@ -114,22 +137,27 @@ def get_original_parent_program(programs)
 end
 
 def get_unbalanced_program(programs)
-    programs.each do |program|
-                   
+    problem_program = nil
+    current = get_original_parent_program(programs)
+    while true
+        if current.is_children_weight_balanced?
+            problem_program = current
+            break
+        end        
+        current = current.get_odd_child
     end
-end
-
-def find_problem_program(program)
-    if program.is_children_weight_balanced?
-        return nil
+    parent = current.parent
+    target_weight = 0
+    parent.children.each do |child|
+        if child != current
+            target_weight = child.get_total_weight
+            break
+        end
     end
-
-    program.children do |child|
-
-    end
+    puts target_weight - (current.get_total_weight - current.weight)
+    current
 end
 
 programs = get_programs
 get_original_parent_program(programs).print_program
-
-
+get_unbalanced_program(programs).print_program
