@@ -157,11 +157,8 @@ def part_1
     puts list[0] * list[1]
 end
 
-part_1
-
-def part_2
-    data = read_file("../data/day10.txt")
-    ascii = read_data_as_bytes(data[0])
+def get_hash(data)
+    ascii = read_data_as_bytes(data)
     list = (0..255).to_a
     current_position = 0
     skip_size = 0    
@@ -170,7 +167,13 @@ def part_2
     end
     dense_hash = get_dense_hash(list)
     hex = convert_dense_hash_to_hex(dense_hash)
-    puts hex
 end
 
-part_2
+def part_2
+    data = read_file("../data/day10.txt")
+    hash = get_hash(data[0])
+    puts hash
+end
+
+#part_1
+#part_2
