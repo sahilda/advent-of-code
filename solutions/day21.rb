@@ -18,9 +18,9 @@ end
 
 def get_flips_and_rotates(book, input, output)    
     4.times do        
-        input = rotate(input)        
-        book[input] = output
+        book[input] = output        
         book[flip(input)] = output
+        input = rotate(input)
     end
     book
 end
@@ -43,46 +43,52 @@ def rotate(input)
         (size-1).downto(0) do |y|
             row << split[y][x]
         end      
-        output << row
-        output << '/'
+        output << row.join('')
     end
-    output.join()[0...-1]
+    output.join('/')
+end
+
+def count_on(pattern)
+    count = 0
+    pattern.split('').each { |l| count += 1 if l == "#" }
+    count
 end
 
 def generate_art(file, repeat)
     book = build_book(file)
     pattern = '.#./..#/###'
     repeat.times do
-        pattern = pattern.split('/')        
-        output = []
-        size = pattern[0].size % 2 == 0 ? 2 : 3
+        pattern = pattern.split('/')    
+        size = pattern[0].size    
+        new_pattern = []
+        break_size = pattern[0].size % 2 == 0 ? 2 : 3
         cur_x = 0
-        cur_y = 0        
-        while cur_y < pattern[0].size
-            while cur_x < pattern[0].size
+
+        while cur_x < size
+            cur_y = 0
+            temp = []
+            while cur_y < size
                 block = []
-                for x in cur_x...(cur_x + size)
-                    puts x           
-                    block << pattern[x][cur_y...cur_y+size]
+                for x in cur_x...(cur_x + break_size)
+                    block << pattern[x][cur_y...cur_y + break_size]
                 end
                 new_block = book[block.join('/')].split('/')
-                i = 0
-                for x in cur_x...(cur_x + size)
-                    if output[x] == nil
-                        output[x] = []
-                    end
-                    output[x] << new_block[i]
-                    i += 1
-                end
-                cur_x += size
+                #p new_block
+                temp << new_block
+                cur_y += break_size
             end
-            cur_y += size
+            new_pattern << temp.transpose.map { |x| x.reduce(:+) }
+            cur_x += break_size
         end
-        pattern = output.join('/')
+        pattern = new_pattern.join('/')
     end
     pattern
+    count_on(pattern)
 end
 
 test = generate_art('../data/day21_test.txt', 2)
 puts test
-#generate_art('../data/day21.txt', 5)
+part1 = generate_art('../data/day21.txt', 5)
+puts part1
+part2 = generate_art('../data/day21.txt', 18)
+puts part2
