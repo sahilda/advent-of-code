@@ -73,7 +73,6 @@ def generate_art(file, repeat)
                     block << pattern[x][cur_y...cur_y + break_size]
                 end
                 new_block = book[block.join('/')].split('/')
-                #p new_block
                 temp << new_block
                 cur_y += break_size
             end
